@@ -22,27 +22,30 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo.api;
+package io.transferoo.resources;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.codahale.metrics.annotation.Timed;
+import io.transferoo.api.Account;
+import io.transferoo.api.AccountId;
 import java.util.UUID;
-import org.immutables.value.Value;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
-/**
- * Unique id for an {@link Account}.
- */
-@Value.Immutable(builder = false)
-@JsonSerialize(as = ImmutableAccountId.class)
-@JsonDeserialize(as = ImmutableAccountId.class)
-public abstract class AccountId {
+@Path("account")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public class AccountResource {
 
-    @JsonValue
-    @Value.Parameter
-    public abstract UUID id();
-
-    public static AccountId of(UUID id) {
-        return ImmutableAccountId.of(id);
+    @GET
+    @Timed
+    @Path("{id}")
+    public Account getAccount(@PathParam("id") String id) {
+        return Account.builder()
+                      .id(AccountId.of(UUID.fromString(id)))
+                      .build();
     }
 }

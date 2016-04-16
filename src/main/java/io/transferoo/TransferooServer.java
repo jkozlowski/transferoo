@@ -26,13 +26,14 @@ package io.transferoo;
 
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
+import io.transferoo.resources.AccountResource;
 
 public class TransferooServer extends Application<TransferooConfiguration> {
 
     @Override
     public void run(TransferooConfiguration configuration,
                     Environment environment) throws Exception {
-
+        environment.jersey().register(new AccountResource());
     }
 
     public static void main(String[] args) throws Exception {

@@ -1,0 +1,23 @@
+server:
+  applicationContextPath: /api
+  adminContextPath: /admin
+  applicationConnectors:
+    - type: https
+      port: 8443
+      keyStorePath: var/security/keystore.keystore
+      keyStorePassword: example
+      validateCerts: false
+      validatePeers: false
+  adminConnectors:
+    - type: https
+      port: 8444
+      keyStorePath: var/security/keystore.keystore
+      keyStorePassword: example
+      validateCerts: false
+      validatePeers: false
+
+logging:
+  level: INFO
+
+  appenders:
+    - type: console
