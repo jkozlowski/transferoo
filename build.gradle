@@ -1,18 +1,27 @@
-apply plugin: 'java'
-apply plugin: 'idea'
+buildscript {
+    apply from: "${rootProject.projectDir}/gradle/versions.gradle"
 
-repositories {
-    jcenter()
+    repositories {
+        jcenter()
+        maven {
+            url 'https://plugins.gradle.org/m2/'
+        }
+    }
+
+    dependencies {
+        classpath "gradle.plugin.com.palantir:gradle-baseline-java:${gradleBaselineJavaVersion}"
+        classpath "gradle.plugin.com.palantir.gradle.javadist:gradle-java-distribution:${gradleJavaDistributionVersion}"
+        classpath "gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:${gradleGitVersion}"
+        classpath "gradle.plugin.org.inferred:gradle-processors:${gradleProcessorsVersion}"
+    }
 }
 
-project.ext {
-    dropwizardVersion = "0.9.2"
-    dropwizardDep = "io.dropwizard:dropwizard-core:${dropwizardVersion}"
-}
+apply plugin: 'com.palantir.baseline-config'
+apply plugin: 'com.palantir.baseline-idea'
+apply plugin: 'com.palantir.git-version'
+apply plugin: 'org.inferred.processors'
 
-dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.18'
-    compile dropwizardDep
-
-    testCompile 'junit:junit:4.12'
+allprojects {
+    group 'io.transferoo'
+    version gitVersion()
 }
