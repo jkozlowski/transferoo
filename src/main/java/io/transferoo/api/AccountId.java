@@ -36,13 +36,13 @@ import org.immutables.value.Value;
 @Value.Immutable(builder = false)
 @JsonSerialize(as = ImmutableAccountId.class)
 @JsonDeserialize(as = ImmutableAccountId.class)
-public abstract class AccountId {
+public interface AccountId {
 
     @JsonValue
     @Value.Parameter
-    public abstract UUID id();
+    UUID id();
 
-    public static AccountId of(UUID id) {
+    static AccountId of(UUID id) {
         return ImmutableAccountId.of(id);
     }
 }

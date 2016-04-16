@@ -34,13 +34,13 @@ import org.immutables.value.Value;
 @Value.Immutable
 @JsonSerialize(as = ImmutableAccount.class)
 @JsonDeserialize(as = ImmutableAccount.class)
-public abstract class Account {
+public interface Account {
 
-    public abstract AccountId id();
+    AccountId id();
 
-    public static Account.Builder builder() {
+    static Account.Builder builder() {
         return new Account.Builder();
     }
 
-    public static class Builder extends ImmutableAccount.Builder {}
+    class Builder extends ImmutableAccount.Builder {}
 }
