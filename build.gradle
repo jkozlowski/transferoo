@@ -19,9 +19,37 @@ buildscript {
 apply plugin: 'com.palantir.baseline-config'
 apply plugin: 'com.palantir.baseline-idea'
 apply plugin: 'com.palantir.git-version'
+apply plugin: 'java'
+apply plugin: 'com.palantir.baseline-checkstyle'
+apply plugin: 'com.palantir.baseline-eclipse'
+apply plugin: 'com.palantir.baseline-findbugs'
+apply plugin: 'com.palantir.baseline-idea'
+apply plugin: 'com.palantir.java-distribution'
 apply plugin: 'org.inferred.processors'
 
-allprojects {
-    group 'io.transferoo'
-    version gitVersion()
+group 'io.transferoo'
+version gitVersion()
+
+sourceCompatibility = 1.8
+
+checkstyle.toolVersion = '6.11.2'
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    processor immutablesDep
+
+    compile immutablesAnnotationsDep
+    compile dropwizardDep
+
+    testCompile junitDep
+}
+
+distribution {
+    serviceName 'transferoo-server'
+    mainClass 'io.transferoo.TransferooServer'
+    args 'server', 'var/conf/transferoo.yml'
 }
