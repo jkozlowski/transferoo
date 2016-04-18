@@ -22,32 +22,45 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo.resources;
+package io.transferoo.resource;
 
 import com.codahale.metrics.annotation.Timed;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountId;
-import java.util.UUID;
+import io.transferoo.store.AccountStore;
+import java.util.Objects;
+import java.util.function.Supplier;
+import javax.annotation.Nonnull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("account")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource {
 
+    private final AccountStore accounts;
+
+    public AccountResource(AccountStore accounts) {
+        this.accounts = Objects.requireNonNull(accounts, "accounts");
+    }
+
     @GET
     @Timed
     @Path("{id}")
-    public Account getAccount(@PathParam("id") String id) {
-        return Account.builder()
-                      .id(AccountId.of(UUID.fromString(id)))
-                      .build();
+    public Account getAccount(@Nonnull @PathParam("id") AccountId id) {
+        return accounts.getAccountById(id)
+                       .orElseThrow(notFound(() -> "Unknown account: " + id));
     }
 
-
+    private Supplier<WebApplicationException> notFound(Supplier<String> msg) {
+        return () -> new WebApplicationException(msg.get(),
+                                                 Response.Status.NOT_FOUND);
+    }
 }

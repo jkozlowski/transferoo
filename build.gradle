@@ -46,6 +46,7 @@ dependencies {
     compile dropwizardDep
 
     testCompile junitDep
+    testCompile dropwizardTestingDep
 }
 
 distribution {

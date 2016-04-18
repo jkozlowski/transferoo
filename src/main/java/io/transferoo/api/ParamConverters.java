@@ -22,25 +22,35 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo;
+package io.transferoo.api;
 
-import io.dropwizard.Application;
-import io.dropwizard.setup.Environment;
-import io.transferoo.api.ParamConverters;
-import io.transferoo.resource.AccountResource;
-import io.transferoo.store.AccountStore;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.UUID;
+import javax.ws.rs.ext.ParamConverter;
+import javax.ws.rs.ext.ParamConverterProvider;
 
-public class TransferooServer extends Application<TransferooConfiguration> {
+public class ParamConverters implements ParamConverterProvider {
 
     @Override
-    public void run(TransferooConfiguration configuration,
-                    Environment environment) throws Exception {
-        AccountStore accounts = new AccountStore();
-        environment.jersey().register(new AccountResource(accounts));
-        environment.jersey().register(new ParamConverters());
-    }
+    public <T> ParamConverter<T> getConverter(final Class<T> rawType,
+                                              final Type genericType,
+                                              final Annotation[] annotations) {
+        if (AccountId.class.equals(rawType)) {
+            return new ParamConverter<T>() {
+                @Override
+                public T fromString(String value) {
+                    UUID uuid = UUID.fromString(value);
+                    return rawType.cast(AccountId.of(uuid));
+                }
 
-    public static void main(String[] args) throws Exception {
-        new TransferooServer().run(args);
+                @Override
+                public String toString(T value) {
+                    return ((AccountId) value).id().toString();
+                }
+            };
+        }
+
+        return null;
     }
 }

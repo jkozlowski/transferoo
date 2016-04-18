@@ -22,25 +22,15 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo;
+package io.transferoo.store;
 
-import io.dropwizard.Application;
-import io.dropwizard.setup.Environment;
-import io.transferoo.api.ParamConverters;
-import io.transferoo.resource.AccountResource;
-import io.transferoo.store.AccountStore;
+import io.transferoo.api.Account;
+import io.transferoo.api.AccountId;
+import java.util.Optional;
 
-public class TransferooServer extends Application<TransferooConfiguration> {
+public class AccountStore {
 
-    @Override
-    public void run(TransferooConfiguration configuration,
-                    Environment environment) throws Exception {
-        AccountStore accounts = new AccountStore();
-        environment.jersey().register(new AccountResource(accounts));
-        environment.jersey().register(new ParamConverters());
-    }
-
-    public static void main(String[] args) throws Exception {
-        new TransferooServer().run(args);
+    public Optional<Account> getAccountById(AccountId accountId) {
+        return Optional.empty();
     }
 }

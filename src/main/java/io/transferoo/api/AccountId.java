@@ -24,25 +24,58 @@
 
 package io.transferoo.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.common.base.MoreObjects;
+import java.util.Objects;
 import java.util.UUID;
-import org.immutables.value.Value;
 
 /**
  * Unique id for an {@link Account}.
  */
-@Value.Immutable(builder = false)
-@JsonSerialize(as = ImmutableAccountId.class)
-@JsonDeserialize(as = ImmutableAccountId.class)
-public interface AccountId {
+public final class AccountId {
+
+    private final UUID id;
+
+    private AccountId(UUID id) {
+        this.id = Objects.requireNonNull(id, "id");
+    }
 
     @JsonValue
-    @Value.Parameter
-    UUID id();
+    public UUID id() {
+        return id;
+    }
 
-    static AccountId of(UUID id) {
-        return ImmutableAccountId.of(id);
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        AccountId accountId = (AccountId) other;
+        return Objects.equals(id, accountId.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .toString();
+    }
+
+    public static AccountId of(UUID id) {
+        return new AccountId(id);
+    }
+
+    @JsonCreator
+    private static AccountId valueOf(String id) {
+        return AccountId.of(UUID.fromString(id));
     }
 }

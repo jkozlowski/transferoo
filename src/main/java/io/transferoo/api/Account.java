@@ -24,6 +24,7 @@
 
 package io.transferoo.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value;
@@ -34,13 +35,14 @@ import org.immutables.value.Value;
 @Value.Immutable
 @JsonSerialize(as = ImmutableAccount.class)
 @JsonDeserialize(as = ImmutableAccount.class)
-public interface Account {
+public abstract class Account {
 
-    AccountId id();
+    @JsonProperty("id")
+    public abstract AccountId id();
 
-    static Account.Builder builder() {
+    public static Account.Builder builder() {
         return new Account.Builder();
     }
 
-    class Builder extends ImmutableAccount.Builder {}
+    public static class Builder extends ImmutableAccount.Builder {}
 }
