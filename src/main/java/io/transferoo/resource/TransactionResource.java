@@ -25,12 +25,11 @@
 package io.transferoo.resource;
 
 import com.codahale.metrics.annotation.Timed;
-import io.transferoo.api.Account;
-import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.Transaction;
+import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import io.transferoo.store.AccountStore;
 import java.net.URI;
-import java.util.Objects;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -44,39 +43,39 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-@Path(TransferooEndpoints.ACCOUNT_RESOURCE)
+@Path(TransferooEndpoints.TRANSACTION_RESOURCE)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
-public class AccountResource {
+public class TransactionResource {
 
     @Context
     private UriInfo uri;
 
     private final AccountStore accounts;
 
-    public AccountResource(AccountStore accounts) {
-        this.accounts = Objects.requireNonNull(accounts, "accounts");
+    public TransactionResource(AccountStore accounts) {
+        this.accounts = accounts;
     }
 
     @GET
     @Timed
     @Path("{id}")
-    public Account getAccount(@NotNull @PathParam("id") UniqueId<Account> id) {
-        return accounts.getAccountById(id)
-                       .orElseThrow(TransferooEndpoints.notFound(() -> "Unknown account: " + id));
+    public Transaction getTransaction(@NotNull @PathParam("id") UniqueId<Transaction> id) {
+        return accounts.getTransactionById(id)
+                       .orElseThrow(TransferooEndpoints.notFound(() -> "Unknown transaction: " + id));
     }
 
     @POST
     @Timed
-    public Response createAccount(@NotNull @Valid AccountMetadata metadata)
-      throws NoSuchMethodException {
-        Account account = accounts.createAccount(metadata);
-        return Response.created(accountUri(account))
-                       .entity(account)
-                       .build();
+    public Response createAccount(@NotNull @Valid TransactionMetadata metadata)
+            throws NoSuchMethodException {
+        Transaction transaction = accounts.createTransaction(metadata);
+        return Response.created(transactionUri(transaction))
+                .entity(transaction)
+                .build();
     }
 
-    private URI accountUri(Account account) throws NoSuchMethodException {
-        return TransferooEndpoints.accountUri(uri, account);
+    private URI transactionUri(Transaction account) throws NoSuchMethodException {
+        return TransferooEndpoints.transactionUri(uri, account);
     }
 }

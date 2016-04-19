@@ -55,5 +55,11 @@ public abstract class TransactionMetadata {
         return new TransactionMetadata.Builder();
     }
 
-    public static class Builder extends ImmutableTransactionMetadata.Builder {}
+    public static class Builder extends ImmutableTransactionMetadata.Builder {
+
+        public TransactionMetadata.Builder source(String transactionId) {
+            return super.source(UniqueId.valueOf(transactionId));
+        }
+
+    }
 }

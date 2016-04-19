@@ -24,24 +24,30 @@
 
 package io.transferoo.store;
 
+import com.google.common.base.Preconditions;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.Transaction;
+import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * All methods are globally synchronized: not ideal, but this is the simplest implementation.
  */
+@ThreadSafe
 public class AccountStore {
 
-    private static final int MAX_RETRY = 5;
     private final Map<UniqueId<Account>, Account> accounts = new HashMap<>();
 
     public Account createAccount(AccountMetadata metadata) {
-        UniqueId<Account> uniqueId = generateAccountId();
+        UniqueId<Account> uniqueId = UniqueId.of(UUID.randomUUID());
+        Preconditions.checkState(!accounts.containsKey(uniqueId),
+                                 "Oh noes, UUIDs just clashed! Lucky you! Try again later!");
         Account account = Account.builder()
                                  .id(uniqueId)
                                  .metadata(metadata)
@@ -54,15 +60,14 @@ public class AccountStore {
         return Optional.ofNullable(accounts.get(uniqueId));
     }
 
-    // Ideally, we'd have a globally unique id implementation handy,
-    // but UUID is type 4.
-    private UniqueId<Account> generateAccountId() {
-        for (int i = 0; i < MAX_RETRY; i++) {
-            UniqueId<Account> candidate = UniqueId.of(UUID.randomUUID());
-            if (!accounts.containsKey(candidate)) {
-                return candidate;
-            }
-        }
-        throw new IllegalStateException("Could not generate a unique id!");
+    public synchronized Transaction createTransaction(TransactionMetadata metadata) {
+        getAccountById(metadata.source())
+                .orElseThrow(() -> new IllegalStateException("Unknown account: " + metadata.source()
+                        .id().toString()));
+        return null;
+    }
+
+    public synchronized Optional<Transaction> getTransactionById(UniqueId<Transaction> uniqueId) {
+        return Optional.empty();
     }
 }

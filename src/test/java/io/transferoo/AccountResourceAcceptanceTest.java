@@ -26,75 +26,33 @@ package io.transferoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.testing.ResourceHelpers;
-import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
-import io.transferoo.resource.TransferooEndpoints;
 import java.math.BigDecimal;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import org.eclipse.jetty.http.HttpStatus;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
 
-public class AccountResourceAcceptanceTest {
-
-    @ClassRule
-    public static final DropwizardAppRule<TransferooConfiguration> RULE =
-            new DropwizardAppRule<>(TransferooServer.class,
-                    ResourceHelpers.resourceFilePath("transferoo.yml"));
-    private static Client c;
+public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
 
     private final AccountMetadata accountMetadata = AccountMetadata.builder()
-            .balance(new BigDecimal(10.50))
-            .build();
-
-
-    @BeforeClass
-    public static void before() {
-        c = new JerseyClientBuilder(RULE.getEnvironment()).build("client");
-    }
+                                                                   .balance(new BigDecimal(10.50))
+                                                                   .build();
 
     @Test
     public void createAccount_should_create_account_and_return_uri_to_it() {
-        createAccount();
+        createAccount(accountMetadata);
     }
 
     @Test
     public void getAccount_should_lookup_account_by_id() {
-        Account account = createAccount();
-        Account actualAccount = target().path("accounts/{id}")
-                                   .resolveTemplate("id", account.id().id().toString())
-                                   .request(MediaType.APPLICATION_JSON_TYPE)
-                                   .get(Account.class);
-        assertThat(actualAccount).isEqualTo(account);
+        Account createAccount = createAccount(accountMetadata);
+        Account actualAccount = getAccount(createAccount.id());
+        assertThat(actualAccount).isEqualTo(createAccount);
     }
 
-    private Account createAccount() {
-        Response response = target().path(TransferooEndpoints.ACCOUNT_RESOURCE)
-                .request()
-                .post(Entity.entity(accountMetadata, MediaType.APPLICATION_JSON_TYPE));
-
-        Account actualAccount = response.readEntity(Account.class);
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(actualAccount.metadata()).isEqualTo(accountMetadata);
-
-        assertThat(c.target(response.getLocation())
-           .request(MediaType.APPLICATION_JSON_TYPE)
-           .get(Account.class)).isEqualTo(actualAccount);
-
-        return actualAccount;
-    }
-
-
-
-    private WebTarget target() {
-        return c.target(String.format("http://localhost:%d/api", RULE.getLocalPort()));
+    @Test
+    public void getAccount_should_fail_for_unknown_id() {
+        Account createdAccount = createAccount(accountMetadata);
+        Account actualAccount = getAccount(createdAccount.id());
+        assertThat(actualAccount).isEqualTo(createdAccount);
     }
 }

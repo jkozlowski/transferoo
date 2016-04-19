@@ -25,21 +25,32 @@
 package io.transferoo.resource;
 
 import io.transferoo.api.Account;
+import io.transferoo.api.Transaction;
 import io.transferoo.api.UniqueId;
 import java.net.URI;
+import java.util.function.Supplier;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 public interface TransferooEndpoints {
 
-    String PREFIX = "/";
-
     String ACCOUNT_RESOURCE = "accounts";
-    String ACCOUNT_PATH = PREFIX + ACCOUNT_RESOURCE;
+    String TRANSACTION_RESOURCE = "transactions";
+
+    static Supplier<WebApplicationException> notFound(Supplier<String> msg) {
+        return () -> new WebApplicationException(msg.get(), Response.Status.NOT_FOUND);
+    }
 
     static URI accountUri(UriInfo uri, Account account) throws NoSuchMethodException {
         return uri.getAbsolutePathBuilder()
-                  // Gnarly, but better than manually creating the URL
                   .path(AccountResource.class.getMethod("getAccount", UniqueId.class))
                   .build(account.id().id().toString());
+    }
+
+    static URI transactionUri(UriInfo uri, Transaction transaction) throws NoSuchMethodException {
+        return uri.getAbsolutePathBuilder()
+                .path(TransactionResource.class.getMethod("getTransaction", UniqueId.class))
+                .build(transaction.id().id().toString());
     }
 }

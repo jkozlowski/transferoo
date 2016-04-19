@@ -3,7 +3,7 @@ transferoo.io
 
 [![Circle CI](https://circleci.com/gh/jkozlowski/transferoo.svg?style=svg)](https://circleci.com/gh/jkozlowski/transferoo)
 
-Just a silly little RESTful, in-memory money transfer API.
+Just a silly RESTful, in-memory money transfer API running on Dropwizard.
 
 Things not handled:
 * Paging.
@@ -11,6 +11,7 @@ Things not handled:
 * Persistence.
 * Performance.
 * Sane error handling (returning enumerated error codes).
+* Assume that UUIDs do not clash.
 
 So pretty much everything you would actually care about...
 

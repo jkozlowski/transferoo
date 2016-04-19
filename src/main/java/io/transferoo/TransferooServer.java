@@ -28,6 +28,7 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 import io.transferoo.api.ParamConverters;
 import io.transferoo.resource.AccountResource;
+import io.transferoo.resource.TransactionResource;
 import io.transferoo.store.AccountStore;
 
 public class TransferooServer extends Application<TransferooConfiguration> {
@@ -37,6 +38,7 @@ public class TransferooServer extends Application<TransferooConfiguration> {
                     Environment environment) throws Exception {
         AccountStore accounts = new AccountStore();
         environment.jersey().register(new AccountResource(accounts));
+        environment.jersey().register(new TransactionResource(accounts));
         environment.jersey().register(new ParamConverters());
     }
 
