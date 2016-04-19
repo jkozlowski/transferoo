@@ -35,6 +35,7 @@ import java.util.UUID;
  */
 public final class AccountId {
 
+    // Cheap way of generating ids
     private final UUID id;
 
     private AccountId(UUID id) {

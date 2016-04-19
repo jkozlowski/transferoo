@@ -5,6 +5,15 @@ transferoo.io
 
 Just a silly little RESTful, in-memory money transfer API.
 
+Things not handled:
+* Paging.
+* Auth.
+* Persistence.
+* Performance.
+* Sane error handling (returning enumerated error codes).
+
+So pretty much everything you would actually care about...
+
 ### Running from Intellij
 
 * class: *io.transferoo.TransferooServer*
