@@ -32,15 +32,15 @@ import java.math.BigDecimal;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@JsonSerialize(as = ImmutableCreateTransaction.class)
-@JsonDeserialize(as = ImmutableCreateTransaction.class)
-public abstract class CreateTransaction {
+@JsonSerialize(as = ImmutableTransactionMetadata.class)
+@JsonDeserialize(as = ImmutableTransactionMetadata.class)
+public abstract class TransactionMetadata {
 
-    @JsonProperty("source")
-    public abstract AccountId source();
+    @JsonProperty("sourceAccount")
+    public abstract UniqueId<Account> source();
 
-    @JsonProperty("destination")
-    public abstract AccountId destination();
+    @JsonProperty("destinationAccount")
+    public abstract UniqueId<Account> destination();
 
     @JsonProperty("amount")
     public abstract BigDecimal amount();
@@ -51,9 +51,9 @@ public abstract class CreateTransaction {
                                  "Amount must be greater than zero: amount=%s", amount());
     }
 
-    public static CreateTransaction.Builder builder() {
-        return new CreateTransaction.Builder();
+    public static TransactionMetadata.Builder builder() {
+        return new TransactionMetadata.Builder();
     }
 
-    public static class Builder extends ImmutableCreateTransaction.Builder {}
+    public static class Builder extends ImmutableTransactionMetadata.Builder {}
 }

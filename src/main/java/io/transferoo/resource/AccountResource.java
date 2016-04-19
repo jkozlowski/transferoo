@@ -26,8 +26,8 @@ package io.transferoo.resource;
 
 import com.codahale.metrics.annotation.Timed;
 import io.transferoo.api.Account;
-import io.transferoo.api.AccountId;
-import io.transferoo.api.CreateAccount;
+import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.UniqueId;
 import io.transferoo.store.AccountStore;
 import java.net.URI;
 import java.util.Objects;
@@ -63,16 +63,16 @@ public class AccountResource {
     @GET
     @Timed
     @Path("{id}")
-    public Account getAccount(@NotNull @PathParam("id") AccountId id) {
+    public Account getAccount(@NotNull @PathParam("id") UniqueId<Account> id) {
         return accounts.getAccountById(id)
                        .orElseThrow(notFound(() -> "Unknown account: " + id));
     }
 
     @POST
     @Timed
-    public Response createAccount(@NotNull @Valid CreateAccount createAccount)
+    public Response createAccount(@NotNull @Valid AccountMetadata metadata)
       throws NoSuchMethodException {
-        Account account = accounts.createAccount(createAccount);
+        Account account = accounts.createAccount(metadata);
         return Response.created(accountUri(account))
                        .entity(account)
                        .build();

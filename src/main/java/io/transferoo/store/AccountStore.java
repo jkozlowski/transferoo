@@ -25,8 +25,8 @@
 package io.transferoo.store;
 
 import io.transferoo.api.Account;
-import io.transferoo.api.AccountId;
-import io.transferoo.api.CreateAccount;
+import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.UniqueId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,29 +38,31 @@ import java.util.UUID;
 public class AccountStore {
 
     private static final int MAX_RETRY = 5;
-    private final Map<AccountId, Account> accounts = new HashMap<>();
+    private final Map<UniqueId<Account>, Account> accounts = new HashMap<>();
 
-    public Account createAccount(CreateAccount createAccount) {
-        AccountId accountId = generateAccountId();
+    public Account createAccount(AccountMetadata metadata) {
+        UniqueId<Account> uniqueId = generateAccountId();
         Account account = Account.builder()
-                                 .id(accountId)
-                                 .balance(createAccount.balance())
+                                 .id(uniqueId)
+                                 .metadata(metadata)
                                  .build();
-        accounts.put(accountId, account);
+        accounts.put(uniqueId, account);
         return account;
     }
 
-    public synchronized Optional<Account> getAccountById(AccountId accountId) {
-        return Optional.ofNullable(accounts.get(accountId));
+    public synchronized Optional<Account> getAccountById(UniqueId<Account> uniqueId) {
+        return Optional.ofNullable(accounts.get(uniqueId));
     }
 
-    private AccountId generateAccountId() {
+    // Ideally, we'd have a globally unique id implementation handy,
+    // but UUID is type 4.
+    private UniqueId<Account> generateAccountId() {
         for (int i = 0; i < MAX_RETRY; i++) {
-            AccountId candidate = AccountId.of(UUID.randomUUID());
+            UniqueId<Account> candidate = UniqueId.of(UUID.randomUUID());
             if (!accounts.containsKey(candidate)) {
                 return candidate;
             }
         }
-        throw new IllegalStateException("Could not generate a unique account id!");
+        throw new IllegalStateException("Could not generate a unique id!");
     }
 }

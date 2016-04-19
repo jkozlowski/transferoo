@@ -24,33 +24,24 @@
 
 package io.transferoo.api;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.UUID;
-import javax.ws.rs.ext.ParamConverter;
-import javax.ws.rs.ext.ParamConverterProvider;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value;
 
-public class ParamConverters implements ParamConverterProvider {
+@Value.Immutable
+@JsonSerialize(as = ImmutableTransaction.class)
+@JsonDeserialize(as = ImmutableTransaction.class)
+public abstract class Transaction {
 
-    @Override
-    public <T> ParamConverter<T> getConverter(final Class<T> rawType,
-                                              final Type genericType,
-                                              final Annotation[] annotations) {
-        if (UniqueId.class.equals(rawType)) {
-            return new ParamConverter<T>() {
-                @Override
-                public T fromString(String value) {
-                    UUID uuid = UUID.fromString(value);
-                    return rawType.cast(UniqueId.of(uuid));
-                }
+    public abstract UniqueId<Transaction> id();
 
-                @Override
-                public String toString(T value) {
-                    return ((UniqueId) value).id().toString();
-                }
-            };
-        }
+    @JsonUnwrapped
+    public abstract TransactionMetadata metadata();
 
-        return null;
+    public static Transaction.Builder builder() {
+        return new Transaction.Builder();
     }
+
+    public static class Builder extends ImmutableTransaction.Builder {}
 }

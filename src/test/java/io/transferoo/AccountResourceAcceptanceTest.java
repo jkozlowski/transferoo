@@ -30,7 +30,7 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.transferoo.api.Account;
-import io.transferoo.api.CreateAccount;
+import io.transferoo.api.AccountMetadata;
 import io.transferoo.resource.TransferooEndpoints;
 import java.math.BigDecimal;
 import javax.ws.rs.client.Client;
@@ -43,7 +43,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-public class AccountAcceptanceTest {
+public class AccountResourceAcceptanceTest {
 
     @ClassRule
     public static final DropwizardAppRule<TransferooConfiguration> RULE =
@@ -51,7 +51,7 @@ public class AccountAcceptanceTest {
                     ResourceHelpers.resourceFilePath("transferoo.yml"));
     private static Client c;
 
-    private final CreateAccount createAccount = CreateAccount.builder()
+    private final AccountMetadata accountMetadata = AccountMetadata.builder()
             .balance(new BigDecimal(10.50))
             .build();
 
@@ -79,11 +79,11 @@ public class AccountAcceptanceTest {
     private Account createAccount() {
         Response response = target().path(TransferooEndpoints.ACCOUNT_RESOURCE)
                 .request()
-                .post(Entity.entity(createAccount, MediaType.APPLICATION_JSON_TYPE));
+                .post(Entity.entity(accountMetadata, MediaType.APPLICATION_JSON_TYPE));
 
         Account actualAccount = response.readEntity(Account.class);
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
-        assertThat(actualAccount.balance()).isEqualTo(createAccount.balance());
+        assertThat(actualAccount.metadata()).isEqualTo(accountMetadata);
 
         assertThat(c.target(response.getLocation())
            .request(MediaType.APPLICATION_JSON_TYPE)

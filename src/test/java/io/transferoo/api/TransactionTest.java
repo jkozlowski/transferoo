@@ -31,22 +31,25 @@ import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.FixtureHelpers;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.UUID;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class CreateTransactionTest {
+public class TransactionTest {
 
-    private static final AccountId SOURCE = AccountId.of(UUID.fromString("d3c02886-2c36-450c-86cf-e199b3ecd333"));
-    private static final AccountId DESTINATION = AccountId.of(UUID.fromString("d3c02886-2c36-450c-86cf-e199b3ecd331"));
-    private static final CreateTransaction EXPECTED = CreateTransaction.builder()
-            .source(SOURCE)
-            .destination(DESTINATION)
-            .amount(new BigDecimal("10.23"))
+    private static final UniqueId<Transaction> ID = UniqueId.valueOf("d3c02886-2c36-450c-86cf-e199b3ecd330");
+    private static final UniqueId<Account> SOURCE = UniqueId.valueOf("d3c02886-2c36-450c-86cf-e199b3ecd333");
+    private static final UniqueId<Account> DESTINATION = UniqueId.valueOf("d3c02886-2c36-450c-86cf-e199b3ecd331");
+    private static final Transaction EXPECTED = Transaction.builder()
+            .id(ID)
+            .metadata(TransactionMetadata.builder()
+                                         .source(SOURCE)
+                                         .destination(DESTINATION)
+                                         .amount(new BigDecimal("10.23"))
+                                         .build())
             .build();
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
-    private static final String FIXTURE = "fixtures/CreateTransaction.json";
+    private static final String FIXTURE = "fixtures/Transaction.json";
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
@@ -59,7 +62,7 @@ public class CreateTransactionTest {
 
     @Test
     public void should_deserialize_cleanly() throws IOException {
-        CreateTransaction actual = readCreateTransaction();
+        Transaction actual = readCreateTransaction();
         assertThat(actual).isEqualTo(EXPECTED);
     }
 
@@ -68,14 +71,14 @@ public class CreateTransactionTest {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Amount must be greater than zero: amount=-0.12");
 
-        CreateTransaction.builder()
+        TransactionMetadata.builder()
                          .source(SOURCE)
                          .destination(DESTINATION)
                          .amount(new BigDecimal("-0.12"))
                          .build();
     }
 
-    private CreateTransaction readCreateTransaction() throws IOException {
-        return MAPPER.readValue(FixtureHelpers.fixture(FIXTURE), CreateTransaction.class);
+    private Transaction readCreateTransaction() throws IOException {
+        return MAPPER.readValue(FixtureHelpers.fixture(FIXTURE), Transaction.class);
     }
 }

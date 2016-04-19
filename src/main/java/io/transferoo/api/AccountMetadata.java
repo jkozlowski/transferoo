@@ -31,16 +31,16 @@ import java.math.BigDecimal;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@JsonSerialize(as = ImmutableCreateAccount.class)
-@JsonDeserialize(as = ImmutableCreateAccount.class)
-public abstract class CreateAccount {
+@JsonSerialize(as = ImmutableAccountMetadata.class)
+@JsonDeserialize(as = ImmutableAccountMetadata.class)
+public abstract class AccountMetadata {
 
     @JsonProperty("balance")
     public abstract BigDecimal balance();
 
-    public static CreateAccount.Builder builder() {
-        return new CreateAccount.Builder();
+    public static AccountMetadata.Builder builder() {
+        return new AccountMetadata.Builder();
     }
 
-    public static class Builder extends ImmutableCreateAccount.Builder {}
+    public static class Builder extends ImmutableAccountMetadata.Builder {}
 }

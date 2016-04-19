@@ -25,7 +25,7 @@
 package io.transferoo.resource;
 
 import io.transferoo.api.Account;
-import io.transferoo.api.AccountId;
+import io.transferoo.api.UniqueId;
 import java.net.URI;
 import javax.ws.rs.core.UriInfo;
 
@@ -39,7 +39,7 @@ public interface TransferooEndpoints {
     static URI accountUri(UriInfo uri, Account account) throws NoSuchMethodException {
         return uri.getAbsolutePathBuilder()
                   // Gnarly, but better than manually creating the URL
-                  .path(AccountResource.class.getMethod("getAccount", AccountId.class))
+                  .path(AccountResource.class.getMethod("getAccount", UniqueId.class))
                   .build(account.id().id().toString());
     }
 }

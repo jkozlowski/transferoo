@@ -25,9 +25,9 @@
 package io.transferoo.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.math.BigDecimal;
 import org.immutables.value.Value;
 
 /**
@@ -39,10 +39,10 @@ import org.immutables.value.Value;
 public abstract class Account {
 
     @JsonProperty("id")
-    public abstract AccountId id();
+    public abstract UniqueId<Account> id();
 
-    @JsonProperty("balance")
-    public abstract BigDecimal balance();
+    @JsonUnwrapped
+    public abstract AccountMetadata metadata();
 
     public static Account.Builder builder() {
         return new Account.Builder();

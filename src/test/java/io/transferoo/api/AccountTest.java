@@ -31,26 +31,28 @@ import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.FixtureHelpers;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.UUID;
 import org.junit.Test;
 
 public class AccountTest {
 
-    private static final AccountId ACCOUNT_ID = AccountId.of(UUID.fromString("d3c02886-2c36-450c-86cf-e199b3ecd333"));
+    private static final UniqueId<Account> ACCOUNT_ID = UniqueId.valueOf("d3c02886-2c36-450c-86cf-e199b3ecd333");
     private static final Account EXPECTED = Account.builder()
-                                                   .id(ACCOUNT_ID)
-                                                   .balance(new BigDecimal("10.23"))
-                                                   .build();
+            .id(ACCOUNT_ID)
+            .metadata(AccountMetadata.builder()
+                                     .balance(new BigDecimal("10.23"))
+                                     .build())
+            .build();
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
     private static final String FIXTURE = "fixtures/Account.json";
 
-    @Test public void should_serialize_cleanly() throws Exception {
+    @Test
+    public void should_serialize_cleanly() throws Exception {
         final String expected = MAPPER.writeValueAsString(readAccount());
-
         assertThat(MAPPER.writeValueAsString(EXPECTED)).isEqualTo(expected);
     }
 
-    @Test public void should_deserialize_cleanly() throws IOException {
+    @Test
+    public void should_deserialize_cleanly() throws IOException {
         Account actual = readAccount();
         assertThat(actual).isEqualTo(EXPECTED);
     }

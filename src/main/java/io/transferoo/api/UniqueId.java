@@ -31,14 +31,15 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Unique id for an {@link Account}.
+ * Unique id to use for {@link Account}s and {@link Transaction}s.
+ *
  */
-public final class AccountId {
+public final class UniqueId<T> {
 
     // Cheap way of generating ids
     private final UUID id;
 
-    private AccountId(UUID id) {
+    private UniqueId(UUID id) {
         this.id = Objects.requireNonNull(id, "id");
     }
 
@@ -55,8 +56,8 @@ public final class AccountId {
         if (other == null || getClass() != other.getClass()) {
             return false;
         }
-        AccountId accountId = (AccountId) other;
-        return Objects.equals(id, accountId.id);
+        UniqueId uniqueId = (UniqueId) other;
+        return Objects.equals(id, uniqueId.id);
     }
 
     @Override
@@ -71,12 +72,12 @@ public final class AccountId {
                 .toString();
     }
 
-    public static AccountId of(UUID id) {
-        return new AccountId(id);
+    public static <T> UniqueId<T> of(UUID id) {
+        return new UniqueId<>(id);
     }
 
     @JsonCreator
-    private static AccountId valueOf(String id) {
-        return AccountId.of(UUID.fromString(id));
+    public static <T> UniqueId<T> valueOf(String id) {
+        return UniqueId.of(UUID.fromString(id));
     }
 }
