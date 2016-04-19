@@ -30,14 +30,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.testing.FixtureHelpers;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.Test;
 
+/**
+ * I would normally have more tests for this, but in the interest of time
+ * let's just demonstrate the principle.
+ *
+ */
 public class AccountTest {
 
     private static final AccountId ACCOUNT_ID = AccountId.of(UUID.fromString("d3c02886-2c36-450c-86cf-e199b3ecd333"));
     private static final Account EXPECTED = Account.builder()
                                                    .id(ACCOUNT_ID)
+                                                   .balance(new BigDecimal("10.23"))
                                                    .build();
     private static final ObjectMapper MAPPER = Jackson.newObjectMapper();
     private static final String FIXTURE = "fixtures/Account_should_deserialize_cleanly.json";

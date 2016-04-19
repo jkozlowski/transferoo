@@ -22,31 +22,24 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo.api;
+package io.transferoo.resource;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.math.BigDecimal;
-import org.immutables.value.Value;
+import io.transferoo.api.Account;
+import io.transferoo.api.AccountId;
+import java.net.URI;
+import javax.ws.rs.core.UriInfo;
 
-/**
- * Account info in transferoo.
- */
-@Value.Immutable
-@JsonSerialize(as = ImmutableAccount.class)
-@JsonDeserialize(as = ImmutableAccount.class)
-public abstract class Account {
+public interface TransferooEndpoints {
 
-    @JsonProperty("id")
-    public abstract AccountId id();
+    String PREFIX = "/";
 
-    @JsonProperty("balance")
-    public abstract BigDecimal balance();
+    String ACCOUNT_RESOURCE = "accounts";
+    String ACCOUNT_PATH = PREFIX + ACCOUNT_RESOURCE;
 
-    public static Account.Builder builder() {
-        return new Account.Builder();
+    static URI accountUri(UriInfo uri, Account account) throws NoSuchMethodException {
+        return uri.getAbsolutePathBuilder()
+                  // Gnarly, but better than manually creating the URL
+                  .path(AccountResource.class.getMethod("getAccount", AccountId.class))
+                  .build(account.id().id().toString());
     }
-
-    public static class Builder extends ImmutableAccount.Builder {}
 }

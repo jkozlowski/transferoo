@@ -26,11 +26,41 @@ package io.transferoo.store;
 
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountId;
+import io.transferoo.api.CreateAccount;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
+/**
+ * All methods are globally synchronized: not ideal, but this is the simplest implementation.
+ */
 public class AccountStore {
 
-    public Optional<Account> getAccountById(AccountId accountId) {
-        return Optional.empty();
+    private static final int MAX_RETRY = 5;
+    private final Map<AccountId, Account> accounts = new HashMap<>();
+
+    public Account createAccount(CreateAccount createAccount) {
+        AccountId accountId = generateAccountId();
+        Account account = Account.builder()
+                                 .id(accountId)
+                                 .balance(createAccount.balance())
+                                 .build();
+        accounts.put(accountId, account);
+        return account;
+    }
+
+    public synchronized Optional<Account> getAccountById(AccountId accountId) {
+        return Optional.ofNullable(accounts.get(accountId));
+    }
+
+    private AccountId generateAccountId() {
+        for (int i = 0; i < MAX_RETRY; i++) {
+            AccountId candidate = AccountId.of(UUID.randomUUID());
+            if (!accounts.containsKey(candidate)) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException("Could not generate a unique account id!");
     }
 }

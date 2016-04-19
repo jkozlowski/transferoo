@@ -30,23 +30,17 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.math.BigDecimal;
 import org.immutables.value.Value;
 
-/**
- * Account info in transferoo.
- */
 @Value.Immutable
-@JsonSerialize(as = ImmutableAccount.class)
-@JsonDeserialize(as = ImmutableAccount.class)
-public abstract class Account {
-
-    @JsonProperty("id")
-    public abstract AccountId id();
+@JsonSerialize(as = ImmutableCreateAccount.class)
+@JsonDeserialize(as = ImmutableCreateAccount.class)
+public abstract class CreateAccount {
 
     @JsonProperty("balance")
     public abstract BigDecimal balance();
 
-    public static Account.Builder builder() {
-        return new Account.Builder();
+    public static CreateAccount.Builder builder() {
+        return new CreateAccount.Builder();
     }
 
-    public static class Builder extends ImmutableAccount.Builder {}
+    public static class Builder extends ImmutableCreateAccount.Builder {}
 }

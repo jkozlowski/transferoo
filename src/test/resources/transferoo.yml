@@ -1,0 +1,15 @@
+server:
+  applicationContextPath: /api
+  adminContextPath: /admin
+  applicationConnectors:
+    - type: http
+      port: 8443
+  adminConnectors:
+    - type: http
+      port: 8444
+
+logging:
+  level: INFO
+
+  appenders:
+    - type: console

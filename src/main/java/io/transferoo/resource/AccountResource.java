@@ -27,23 +27,32 @@ package io.transferoo.resource;
 import com.codahale.metrics.annotation.Timed;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountId;
+import io.transferoo.api.CreateAccount;
 import io.transferoo.store.AccountStore;
+import java.net.URI;
 import java.util.Objects;
 import java.util.function.Supplier;
-import javax.annotation.Nonnull;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
-@Path("account")
+@Path(TransferooEndpoints.ACCOUNT_PATH)
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class AccountResource {
+
+    @Context
+    private UriInfo uri;
 
     private final AccountStore accounts;
 
@@ -54,13 +63,27 @@ public class AccountResource {
     @GET
     @Timed
     @Path("{id}")
-    public Account getAccount(@Nonnull @PathParam("id") AccountId id) {
+    public Account getAccount(@NotNull @PathParam("id") AccountId id) {
         return accounts.getAccountById(id)
                        .orElseThrow(notFound(() -> "Unknown account: " + id));
+    }
+
+    @POST
+    @Timed
+    public Response createAccount(@NotNull @Valid CreateAccount createAccount)
+      throws NoSuchMethodException {
+        Account account = accounts.createAccount(createAccount);
+        return Response.created(accountUri(account))
+                       .entity(account)
+                       .build();
     }
 
     private Supplier<WebApplicationException> notFound(Supplier<String> msg) {
         return () -> new WebApplicationException(msg.get(),
                                                  Response.Status.NOT_FOUND);
+    }
+
+    private URI accountUri(Account account) throws NoSuchMethodException {
+        return TransferooEndpoints.accountUri(uri, account);
     }
 }
