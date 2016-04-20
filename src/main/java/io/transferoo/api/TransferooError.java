@@ -22,28 +22,27 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo.resource;
+package io.transferoo.api;
 
-import io.transferoo.api.Account;
-import io.transferoo.api.Transaction;
-import io.transferoo.api.UniqueId;
-import java.net.URI;
-import javax.ws.rs.core.UriInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value;
 
-public interface TransferooEndpoints {
+@Value.Immutable(builder = false)
+@JsonSerialize(as = ImmutableTransferooError.class)
+@JsonDeserialize(as = ImmutableTransferooError.class)
+public abstract class TransferooError {
 
-    String ACCOUNT_RESOURCE = "accounts";
-    String TRANSACTION_RESOURCE = "transactions";
+    @Value.Parameter
+    @JsonProperty("message")
+    public abstract String message();
 
-    static URI accountUri(UriInfo uri, Account account) throws NoSuchMethodException {
-        return uri.getAbsolutePathBuilder()
-                  .path(AccountResource.class.getMethod("getAccount", UniqueId.class))
-                  .build(account.id().id().toString());
-    }
+    @Value.Parameter
+    @JsonProperty("errorCode")
+    public abstract ErrorCode errorCode();
 
-    static URI transactionUri(UriInfo uri, Transaction transaction) throws NoSuchMethodException {
-        return uri.getAbsolutePathBuilder()
-                .path(TransactionResource.class.getMethod("getTransaction", UniqueId.class))
-                .build(transaction.id().id().toString());
+    public static TransferooError of(String message, ErrorCode errorCode) {
+        return ImmutableTransferooError.of(message, errorCode);
     }
 }

@@ -27,6 +27,7 @@ package io.transferoo.resource;
 import com.codahale.metrics.annotation.Timed;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.ErrorCode;
 import io.transferoo.api.UniqueId;
 import io.transferoo.store.AccountStore;
 import java.net.URI;
@@ -63,7 +64,7 @@ public class AccountResource {
     @Path("{id}")
     public Account getAccount(@NotNull @PathParam("id") UniqueId<Account> id) {
         return accounts.getAccountById(id)
-                       .orElseThrow(TransferooEndpoints.notFound(() -> "Unknown account: " + id));
+                       .orElseThrow(ErrorCode.accountNotFound(id));
     }
 
     @POST

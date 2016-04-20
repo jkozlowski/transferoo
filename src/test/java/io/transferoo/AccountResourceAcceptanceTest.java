@@ -28,7 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.ErrorCode;
+import io.transferoo.api.UniqueId;
 import java.math.BigDecimal;
+import java.util.UUID;
 import org.junit.Test;
 
 public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
@@ -51,8 +54,7 @@ public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void getAccount_should_fail_for_unknown_id() {
-        Account createdAccount = createAccount(accountMetadata);
-        Account actualAccount = getAccount(createdAccount.id());
-        assertThat(actualAccount).isEqualTo(createdAccount);
+        UniqueId<Account> of = UniqueId.of(UUID.randomUUID());
+        expectError(ErrorCode.accountNotFound(of), getAccountResponse(of));
     }
 }

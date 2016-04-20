@@ -27,7 +27,9 @@ package io.transferoo.store;
 import com.google.common.base.Preconditions;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.ErrorCode;
 import io.transferoo.api.Transaction;
+import io.transferoo.api.TransactionAccountType;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import java.util.HashMap;
@@ -61,13 +63,16 @@ public class AccountStore {
     }
 
     public synchronized Transaction createTransaction(TransactionMetadata metadata) {
-        getAccountById(metadata.source())
-                .orElseThrow(() -> new IllegalStateException("Unknown account: " + metadata.source()
-                        .id().toString()));
+        getAccountByIdStrict(metadata.source(), TransactionAccountType.SOURCE);
+        getAccountByIdStrict(metadata.destination(), TransactionAccountType.DESTINATION);
         return null;
     }
 
     public synchronized Optional<Transaction> getTransactionById(UniqueId<Transaction> uniqueId) {
         return Optional.empty();
+    }
+
+    private Account getAccountByIdStrict(UniqueId<Account> accountId, TransactionAccountType accountType) {
+        return getAccountById(accountId).orElseThrow(ErrorCode.unknownAccountId(accountId, accountType));
     }
 }

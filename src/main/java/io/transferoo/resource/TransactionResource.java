@@ -25,6 +25,7 @@
 package io.transferoo.resource;
 
 import com.codahale.metrics.annotation.Timed;
+import io.transferoo.api.ErrorCode;
 import io.transferoo.api.Transaction;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
@@ -62,7 +63,7 @@ public class TransactionResource {
     @Path("{id}")
     public Transaction getTransaction(@NotNull @PathParam("id") UniqueId<Transaction> id) {
         return accounts.getTransactionById(id)
-                       .orElseThrow(TransferooEndpoints.notFound(() -> "Unknown transaction: " + id));
+                       .orElseThrow(ErrorCode.unknownTransactionId(id));
     }
 
     @POST

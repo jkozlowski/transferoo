@@ -22,28 +22,31 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo.resource;
+package io.transferoo.api;
 
-import io.transferoo.api.Account;
-import io.transferoo.api.Transaction;
-import io.transferoo.api.UniqueId;
-import java.net.URI;
-import javax.ws.rs.core.UriInfo;
+import com.google.common.base.Preconditions;
+import java.util.HashSet;
+import java.util.Set;
 
-public interface TransferooEndpoints {
+public enum TransactionAccountType {
 
-    String ACCOUNT_RESOURCE = "accounts";
-    String TRANSACTION_RESOURCE = "transactions";
+    SOURCE("source"), DESTINATION("destination");
 
-    static URI accountUri(UriInfo uri, Account account) throws NoSuchMethodException {
-        return uri.getAbsolutePathBuilder()
-                  .path(AccountResource.class.getMethod("getAccount", UniqueId.class))
-                  .build(account.id().id().toString());
+    private final String type;
+
+    static {
+        Set<String> types = new HashSet<>();
+        for (TransactionAccountType type : TransactionAccountType.values()) {
+            Preconditions.checkState(types.add(type.type),
+                                     "Duplicate type: %s", type);
+        }
     }
 
-    static URI transactionUri(UriInfo uri, Transaction transaction) throws NoSuchMethodException {
-        return uri.getAbsolutePathBuilder()
-                .path(TransactionResource.class.getMethod("getTransaction", UniqueId.class))
-                .build(transaction.id().id().toString());
+    TransactionAccountType(String type) {
+        this.type = type;
+    }
+
+    public String type() {
+        return type;
     }
 }

@@ -10,7 +10,6 @@ Things not handled:
 * Auth.
 * Persistence.
 * Performance.
-* Sane error handling (returning enumerated error codes).
 * Assume that UUIDs do not clash.
 
 So pretty much everything you would actually care about...

@@ -33,8 +33,11 @@ import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
 import io.transferoo.api.Transaction;
 import io.transferoo.api.TransactionMetadata;
+import io.transferoo.api.TransferooError;
 import io.transferoo.api.UniqueId;
 import io.transferoo.resource.TransferooEndpoints;
+import java.util.function.Supplier;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -49,7 +52,7 @@ public abstract class AcceptanceTestBase {
     @ClassRule
     public static final DropwizardAppRule<TransferooConfiguration> RULE =
             new DropwizardAppRule<>(TransferooServer.class,
-                    ResourceHelpers.resourceFilePath("transferoo.yml"));
+                                    ResourceHelpers.resourceFilePath("transferoo.yml"));
 
     private static Client c;
 
@@ -91,9 +94,15 @@ public abstract class AcceptanceTestBase {
         return getAccountResponse(accountId).readEntity(Account.class);
     }
 
-    protected Transaction createTransation(TransactionMetadata metadata) {
-        Response response = tryCreateTransaction(metadata);
+    protected Response getTransactionResponse(UniqueId<Transaction> transactionId) {
+        return target().path(TransferooEndpoints.TRANSACTION_RESOURCE + "/{id}")
+                       .resolveTemplate("id", transactionId.id().toString())
+                       .request(MediaType.APPLICATION_JSON_TYPE)
+                       .get();
+    }
 
+    protected Transaction createTransaction(TransactionMetadata metadata) {
+        Response response = tryCreateTransaction(metadata);
         Transaction actualTransaction = checkCreated(Transaction.class, response);
         assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
         return actualTransaction;
@@ -103,6 +112,12 @@ public abstract class AcceptanceTestBase {
         return target().path(TransferooEndpoints.TRANSACTION_RESOURCE)
                        .request()
                        .post(Entity.entity(metadata, MediaType.APPLICATION_JSON_TYPE));
+    }
+
+    protected void expectError(Supplier<WebApplicationException> exceptionSupplier, Response response) {
+        WebApplicationException exception = exceptionSupplier.get();
+        assertThat(response.getStatusInfo()).isEqualTo(exception.getResponse().getStatusInfo());
+        assertThat(response.readEntity(TransferooError.class)).isEqualTo(exception.getResponse().getEntity());
     }
 
     private <T> T checkCreated(Class<T> clazz, Response response) {

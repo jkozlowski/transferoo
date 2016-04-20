@@ -26,6 +26,9 @@ package io.transferoo;
 
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.ErrorCode;
+import io.transferoo.api.Transaction;
+import io.transferoo.api.TransactionAccountType;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import java.math.BigDecimal;
@@ -54,8 +57,23 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void getTransaction_should_fail_for_unknown_id() {
+        UniqueId<Transaction> of = UniqueId.of(UUID.randomUUID());
+        expectError(ErrorCode.unknownTransactionId(of), getTransactionResponse(of));
+    }
+
+    @Test
     public void createTransaction_should_fail_for_unknown_source_transaction() {
-        tryCreateTransaction(account1ToAccount2().source(UniqueId.of(UUID.randomUUID())).build());
+        UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
+        expectError(ErrorCode.unknownAccountId(accountId, TransactionAccountType.SOURCE),
+                    tryCreateTransaction(account1ToAccount2().source(accountId).build()));
+    }
+
+    @Test
+    public void createTransaction_should_fail_for_unknown_destination_transaction() {
+        UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
+        expectError(ErrorCode.unknownAccountId(accountId, TransactionAccountType.DESTINATION),
+                    tryCreateTransaction(account1ToAccount2().destination(accountId).build()));
     }
 
     private TransactionMetadata.Builder account1ToAccount2() {
