@@ -63,8 +63,12 @@ public class AccountStore {
     }
 
     public synchronized Transaction createTransaction(TransactionMetadata metadata) {
-        getAccountByIdStrict(metadata.source(), TransactionAccountType.SOURCE);
+        Account source = getAccountByIdStrict(metadata.source(), TransactionAccountType.SOURCE);
         getAccountByIdStrict(metadata.destination(), TransactionAccountType.DESTINATION);
+
+        if (metadata.amount().compareTo(source.metadata().balance()) > 0) {
+            throw ErrorCode.insufficientBalanceException(metadata, source);
+        }
         return null;
     }
 

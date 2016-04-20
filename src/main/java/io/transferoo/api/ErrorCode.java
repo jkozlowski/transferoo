@@ -34,7 +34,8 @@ public enum ErrorCode {
     // in order to not change the ordering by mistake.
     AccountNotFound(Response.Status.NOT_FOUND),
     UnknownTransactionAccountId(Response.Status.BAD_REQUEST),
-    TransactionNotFound(Response.Status.NOT_FOUND);
+    TransactionNotFound(Response.Status.NOT_FOUND),
+    InsufficientBalance(Response.Status.BAD_REQUEST);
 
     private final Response.Status status;
 
@@ -49,11 +50,25 @@ public enum ErrorCode {
     public static Supplier<WebApplicationException> unknownAccountId(UniqueId<Account> accountId,
                                                                      TransactionAccountType subtype) {
         return exception(ErrorCode.UnknownTransactionAccountId, () -> "Unknown " + subtype.type()
-                                                                      + ": " + accountId.id().toString());
+                                                                    + ": " + accountId.id().toString());
     }
 
     public static Supplier<WebApplicationException> unknownTransactionId(UniqueId<Transaction> transactionId) {
         return exception(ErrorCode.TransactionNotFound, () -> "Unknown transaction: " + transactionId.id().toString());
+    }
+
+    public static Supplier<WebApplicationException> insufficientBalance(TransactionMetadata transactionMetadata,
+                                                                        Account source) {
+        return exception(ErrorCode.TransactionNotFound, () -> "Unsufficient balance: amount="
+                                                            + transactionMetadata.amount()
+                                                            + ", balance=" + source.metadata().balance());
+    }
+
+    public static WebApplicationException insufficientBalanceException(TransactionMetadata transactionMetadata,
+                                                                       Account source) {
+        throw exception(ErrorCode.TransactionNotFound, () -> "Unsufficient balance: amount="
+                      + transactionMetadata.amount()
+                      + ", balance=" + source.metadata().balance()).get();
     }
 
     private static Supplier<WebApplicationException> exception(ErrorCode errorCode, Supplier<String> message) {

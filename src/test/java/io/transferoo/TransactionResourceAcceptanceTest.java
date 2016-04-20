@@ -76,6 +76,14 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
                     tryCreateTransaction(account1ToAccount2().destination(accountId).build()));
     }
 
+    @Test
+    public void createTransaction_should_fail_if_source_has_insufficient_balance() {
+        TransactionMetadata transactionMetadata = account1ToAccount2().amount(account1Balance.add(BigDecimal.ONE))
+                                                                      .build();
+        expectError(ErrorCode.insufficientBalance(transactionMetadata, account1),
+                    tryCreateTransaction(transactionMetadata));
+    }
+
     private TransactionMetadata.Builder account1ToAccount2() {
         return TransactionMetadata.builder()
                                   .source(account1.id())
