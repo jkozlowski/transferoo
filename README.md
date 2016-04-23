@@ -26,7 +26,7 @@ So pretty much everything you would actually care about...
 * class: *io.transferoo.TransferooServer*
 * args: *server var/transferoo.yml*
 
-Open [your browser](https://localhost:8343/api/account/d3c02886-2c36-450c-86cf-e199b3ecd9c2).
+Open [your browser](https://localhost:8343/api/accounts/d3c02886-2c36-450c-86cf-e199b3ecd9c2).
 
 ### Import to IntelliJ
 
