@@ -36,12 +36,12 @@ public interface TransferooEndpoints {
     String GET_BY_ID_PATH = "{id}";
 
     static Response createdResponse(UriInfo uri, HasUniqueId<?> resource) {
-        return Response.created(resourceURI(uri, resource))
+        return Response.created(resourceUri(uri, resource))
                        .entity(resource)
                        .build();
     }
 
-    static URI resourceURI(UriInfo uri, HasUniqueId<?> resource) {
+    static URI resourceUri(UriInfo uri, HasUniqueId<?> resource) {
         return uri.getAbsolutePathBuilder()
                   .path(GET_BY_ID_PATH)
                   .build(resource.id().id().toString());
