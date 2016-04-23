@@ -60,7 +60,7 @@ public class AccountResource {
 
     @GET
     @Timed
-    @Path("{id}")
+    @Path(TransferooEndpoints.GET_BY_ID_PATH)
     public Account getAccount(@NotNull @PathParam("id") UniqueId<Account> id) {
         return accounts.getAccountById(id)
                        .orElseThrow(ErrorCode.accountNotFound(id));

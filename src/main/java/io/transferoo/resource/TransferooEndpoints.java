@@ -33,6 +33,7 @@ public interface TransferooEndpoints {
 
     String ACCOUNT_RESOURCE = "accounts";
     String TRANSACTION_RESOURCE = "transactions";
+    String GET_BY_ID_PATH = "{id}";
 
     static Response createdResponse(UriInfo uri, HasUniqueId<?> resource) {
         return Response.created(resourceURI(uri, resource))
@@ -42,7 +43,7 @@ public interface TransferooEndpoints {
 
     static URI resourceURI(UriInfo uri, HasUniqueId<?> resource) {
         return uri.getAbsolutePathBuilder()
-                  .path("{id}")
+                  .path(GET_BY_ID_PATH)
                   .build(resource.id().id().toString());
     }
 }

@@ -59,7 +59,7 @@ public class TransactionResource {
 
     @GET
     @Timed
-    @Path("{id}")
+    @Path(TransferooEndpoints.GET_BY_ID_PATH)
     public Transaction getTransaction(@NotNull @PathParam("id") UniqueId<Transaction> id) {
         return accounts.getTransactionById(id)
                        .orElseThrow(ErrorCode.unknownTransactionId(id));
