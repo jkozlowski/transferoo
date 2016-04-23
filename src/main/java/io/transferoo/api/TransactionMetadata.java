@@ -27,7 +27,6 @@ package io.transferoo.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.common.base.Preconditions;
 import java.math.BigDecimal;
 import org.immutables.value.Value;
 
@@ -44,12 +43,6 @@ public abstract class TransactionMetadata {
 
     @JsonProperty("amount")
     public abstract BigDecimal amount();
-
-    @Value.Check
-    protected void check() {
-        Preconditions.checkState(amount().compareTo(BigDecimal.ZERO) > 0,
-                                 "Amount must be greater than zero: amount=%s", amount());
-    }
 
     public static TransactionMetadata.Builder builder() {
         return new TransactionMetadata.Builder();

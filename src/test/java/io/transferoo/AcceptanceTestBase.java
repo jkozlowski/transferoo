@@ -31,13 +31,12 @@ import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
+import io.transferoo.api.ErrorCode;
 import io.transferoo.api.Transaction;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.TransferooError;
 import io.transferoo.api.UniqueId;
 import io.transferoo.resource.TransferooEndpoints;
-import java.util.function.Supplier;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
@@ -110,10 +109,11 @@ public abstract class AcceptanceTestBase {
                        .post(Entity.entity(metadata, MediaType.APPLICATION_JSON_TYPE));
     }
 
-    protected void expectError(Supplier<WebApplicationException> exceptionSupplier, Response response) {
-        WebApplicationException exception = exceptionSupplier.get();
-        assertThat(response.getStatusInfo()).isEqualTo(exception.getResponse().getStatusInfo());
-        assertThat(response.readEntity(TransferooError.class)).isEqualTo(exception.getResponse().getEntity());
+    protected void expectError(ErrorCode errorCode, String message, Response response) {
+        assertThat(response.getStatusInfo().getStatusCode()).isEqualTo(errorCode.getStatus().getStatusCode());
+        TransferooError expectedError = TransferooError.of(message, errorCode);
+        TransferooError actualError = response.readEntity(TransferooError.class);
+        assertThat(actualError).isEqualTo(expectedError);
     }
 
     private <T> T checkCreated(Class<T> clazz, Response response) {

@@ -34,6 +34,7 @@ public enum ErrorCode {
     UnknownTransactionAccountId(Response.Status.BAD_REQUEST),
     TransactionNotFound(Response.Status.NOT_FOUND),
     SourceSameAsDestination(Response.Status.BAD_REQUEST),
+    TransactionAmountNonPositive(Response.Status.BAD_REQUEST),
     InsufficientBalance(Response.Status.BAD_REQUEST);
 
     private final Response.Status status;
@@ -42,48 +43,53 @@ public enum ErrorCode {
         this.status = status;
     }
 
+    public Response.Status getStatus() {
+        return status;
+    }
+
     public static Supplier<WebApplicationException> accountNotFound(UniqueId<Account> accountId) {
         return exception(ErrorCode.AccountNotFound, () -> "Account not found: " + accountId.id().toString());
     }
 
     public static Supplier<WebApplicationException> unknownAccountId(UniqueId<Account> accountId,
                                                                      TransactionAccountType subtype) {
-        return exception(ErrorCode.UnknownTransactionAccountId, () -> "Unknown " + subtype.type()
-                                                                    + ": " + accountId.id().toString());
+        return exception(ErrorCode.UnknownTransactionAccountId, () -> "Unknown " + subtype.type() + " account: "
+                                                                    + accountId.id().toString());
     }
 
     public static Supplier<WebApplicationException> unknownTransactionId(UniqueId<Transaction> transactionId) {
         return exception(ErrorCode.TransactionNotFound, () -> "Unknown transaction: " + transactionId.id().toString());
     }
 
-    public static Supplier<WebApplicationException> insufficientBalance(TransactionMetadata transactionMetadata,
-                                                                        Account source) {
-        return exception(ErrorCode.InsufficientBalance, () -> "Unsufficient balance: amount="
-                                                            + transactionMetadata.amount()
-                                                            + ", balance=" + source.metadata().balance());
-    }
-
     public static WebApplicationException insufficientBalanceException(TransactionMetadata transactionMetadata,
                                                                        Account source) {
-        throw insufficientBalance(transactionMetadata, source).get();
-    }
-
-    public static Supplier<WebApplicationException> sourceSameAsDestination(TransactionMetadata metadata) {
-        return exception(ErrorCode.SourceSameAsDestination, () -> "Source account must not be equal "
-                                                                + "to destination account: " + metadata.source());
+        throw createException(ErrorCode.InsufficientBalance,
+                              "Unsufficient balance: amount="
+                            + transactionMetadata.amount()
+                            + ", balance=" + source.metadata().balance());
     }
 
     public static WebApplicationException sourceSameAsDestinationException(TransactionMetadata metadata) {
-        throw sourceSameAsDestination(metadata).get();
+        throw createException(ErrorCode.SourceSameAsDestination,
+                              "Source account must not be equal "
+                            + "to destination account: " + metadata.source());
+    }
+
+    public static WebApplicationException transactionAmountNonPositiveException(TransactionMetadata metadata) {
+        throw createException(ErrorCode.TransactionAmountNonPositive,
+                              "Amount must be greater than zero: amount="
+                            + metadata.amount());
     }
 
     private static Supplier<WebApplicationException> exception(ErrorCode errorCode, Supplier<String> message) {
-        return () -> {
-            TransferooError error = TransferooError.of(message.get(), errorCode);
-            Response response = Response.status(errorCode.status)
-                                        .entity(error)
-                                        .build();
-            return new WebApplicationException(response);
-        };
+        return () -> createException(errorCode, message.get());
+    }
+
+    private static WebApplicationException createException(ErrorCode errorCode, String message) {
+        TransferooError error = TransferooError.of(message, errorCode);
+        Response response = Response.status(errorCode.status)
+                                    .entity(error)
+                                    .build();
+        return new WebApplicationException(response);
     }
 }

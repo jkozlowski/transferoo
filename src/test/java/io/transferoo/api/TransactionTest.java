@@ -66,18 +66,6 @@ public class TransactionTest {
         assertThat(actual).isEqualTo(EXPECTED);
     }
 
-    @Test
-    public void builder_should_throw_exception_if_amount_is_negative() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Amount must be greater than zero: amount=-0.12");
-
-        TransactionMetadata.builder()
-                         .source(SOURCE)
-                         .destination(DESTINATION)
-                         .amount(new BigDecimal("-0.12"))
-                         .build();
-    }
-
     private Transaction readCreateTransaction() throws IOException {
         return MAPPER.readValue(FixtureHelpers.fixture(FIXTURE), Transaction.class);
     }

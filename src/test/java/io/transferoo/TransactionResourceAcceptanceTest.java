@@ -30,7 +30,6 @@ import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
 import io.transferoo.api.ErrorCode;
 import io.transferoo.api.Transaction;
-import io.transferoo.api.TransactionAccountType;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import java.math.BigDecimal;
@@ -62,7 +61,8 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void getTransaction_should_fail_for_unknown_id() {
         UniqueId<Transaction> transactionId = UniqueId.of(UUID.randomUUID());
-        expectError(ErrorCode.unknownTransactionId(transactionId),
+        expectError(ErrorCode.TransactionNotFound,
+                    "Unknown transaction: " + transactionId.id(),
                     getTransactionResponse(transactionId));
     }
 
@@ -70,21 +70,38 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
     public void createTransaction_should_fail_if_source_is_same_as_destination() {
         TransactionMetadata metadata = transaction().destination(sourceAccount.id())
                                                     .build();
-        expectError(ErrorCode.sourceSameAsDestination(metadata),
+        expectError(ErrorCode.SourceSameAsDestination,
+                    "Source account must not be equal to destination account: " + metadata.source(),
                     tryCreateTransaction(metadata));
+    }
+
+    @Test
+    public void createTransaction_should_fail_if_transaction_amount_is_zero() {
+        TransactionMetadata metadata = transaction().amount(BigDecimal.ZERO)
+                                                    .build();
+        checkAmountNonPositive(metadata);
+    }
+
+    @Test
+    public void createTransaction_should_fail_if_transaction_amount_is_negative() {
+        TransactionMetadata metadata = transaction().amount(BigDecimal.ONE.negate())
+                                                    .build();
+        checkAmountNonPositive(metadata);
     }
 
     @Test
     public void createTransaction_should_fail_for_unknown_source_transaction() {
         UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
-        expectError(ErrorCode.unknownAccountId(accountId, TransactionAccountType.SOURCE),
+        expectError(ErrorCode.UnknownTransactionAccountId,
+                    "Unknown source account: " + accountId.id().toString(),
                     tryCreateTransaction(transaction().source(accountId).build()));
     }
 
     @Test
     public void createTransaction_should_fail_for_unknown_destination_transaction() {
         UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
-        expectError(ErrorCode.unknownAccountId(accountId, TransactionAccountType.DESTINATION),
+        expectError(ErrorCode.UnknownTransactionAccountId,
+                    "Unknown destination account: " + accountId.id().toString(),
                     tryCreateTransaction(transaction().destination(accountId).build()));
     }
 
@@ -92,7 +109,10 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
     public void createTransaction_should_fail_if_source_has_insufficient_balance() {
         TransactionMetadata transactionMetadata = transaction().amount(sourceAccountBalance.add(BigDecimal.ONE))
                                                                .build();
-        expectError(ErrorCode.insufficientBalance(transactionMetadata, sourceAccount),
+        expectError(ErrorCode.InsufficientBalance,
+                    "Unsufficient balance: amount="
+                  + transactionMetadata.amount()
+                  + ", balance=" + sourceAccountBalance,
                     tryCreateTransaction(transactionMetadata));
     }
 
@@ -104,6 +124,12 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void createTransaction_should_successfully_transfer_entire_balance() {
         checkTransaction(sourceAccountBalance);
+    }
+
+    private void checkAmountNonPositive(TransactionMetadata metadata) {
+        expectError(ErrorCode.TransactionAmountNonPositive,
+                    "Amount must be greater than zero: amount=" + metadata.amount(),
+                    tryCreateTransaction(metadata));
     }
 
     private void checkTransaction(BigDecimal amount) {

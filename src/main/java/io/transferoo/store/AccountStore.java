@@ -72,6 +72,10 @@ public class AccountStore {
             throw ErrorCode.sourceSameAsDestinationException(metadata);
         }
 
+        if (transactionAmountNotPositive(metadata)) {
+            throw ErrorCode.transactionAmountNonPositiveException(metadata);
+        }
+
         Account source = getAccountByIdStrict(metadata.source(), TransactionAccountType.SOURCE);
         Account destination = getAccountByIdStrict(metadata.destination(), TransactionAccountType.DESTINATION);
 
@@ -98,6 +102,10 @@ public class AccountStore {
 
     private boolean sourceAccountIsSameAsDestination(TransactionMetadata metadata) {
         return metadata.source().equals(metadata.destination());
+    }
+
+    private boolean transactionAmountNotPositive(TransactionMetadata metadata) {
+        return metadata.amount().compareTo(BigDecimal.ZERO) <= 0;
     }
 
     private boolean hasEnoughBalance(TransactionMetadata metadata, Account source) {

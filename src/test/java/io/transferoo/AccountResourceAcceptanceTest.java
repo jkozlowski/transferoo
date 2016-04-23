@@ -61,7 +61,9 @@ public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
 
     @Test
     public void getAccount_should_fail_for_unknown_id() {
-        UniqueId<Account> of = UniqueId.of(UUID.randomUUID());
-        expectError(ErrorCode.accountNotFound(of), getAccountResponse(of));
+        UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
+        expectError(ErrorCode.AccountNotFound,
+                    "Account not found: " + accountId.id().toString(),
+                    getAccountResponse(accountId));
     }
 }
