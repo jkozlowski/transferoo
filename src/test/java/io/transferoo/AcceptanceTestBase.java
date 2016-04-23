@@ -26,9 +26,12 @@ package io.transferoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.dropwizard.client.HttpClientBuilder;
+import io.dropwizard.client.HttpClientConfiguration;
 import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit.DropwizardAppRule;
+import io.dropwizard.util.Duration;
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
 import io.transferoo.api.ErrorCode;
@@ -57,7 +60,13 @@ public abstract class AcceptanceTestBase {
 
     @BeforeClass
     public static void beforeClass() {
-        c = new JerseyClientBuilder(RULE.getEnvironment()).build("client");
+        HttpClientConfiguration httpClientConfiguration = new HttpClientConfiguration();
+        httpClientConfiguration.setTimeout(Duration.milliseconds(4000));
+        HttpClientBuilder clientBuilder = new HttpClientBuilder(RULE.getEnvironment());
+        clientBuilder.using(httpClientConfiguration);
+        JerseyClientBuilder builder = new JerseyClientBuilder(RULE.getEnvironment());
+        builder.setApacheHttpClientBuilder(clientBuilder);
+        c = builder.build("client");
     }
 
     protected WebTarget target() {
