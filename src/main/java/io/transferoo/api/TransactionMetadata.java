@@ -49,8 +49,6 @@ public abstract class TransactionMetadata {
     protected void check() {
         Preconditions.checkState(amount().compareTo(BigDecimal.ZERO) > 0,
                                  "Amount must be greater than zero: amount=%s", amount());
-        Preconditions.checkState(!source().equals(destination()),
-                                 "Source must not be equal to destination: %s", source());
     }
 
     public static TransactionMetadata.Builder builder() {

@@ -78,18 +78,6 @@ public class TransactionTest {
                          .build();
     }
 
-    @Test
-    public void builder_should_throw_exception_if_source_is_destination() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Source must not be equal to destination: " + SOURCE);
-
-        TransactionMetadata.builder()
-                           .source(SOURCE)
-                           .destination(SOURCE)
-                           .amount(new BigDecimal("10"))
-                           .build();
-    }
-
     private Transaction readCreateTransaction() throws IOException {
         return MAPPER.readValue(FixtureHelpers.fixture(FIXTURE), Transaction.class);
     }

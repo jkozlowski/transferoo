@@ -33,6 +33,7 @@ public enum ErrorCode {
     AccountNotFound(Response.Status.NOT_FOUND),
     UnknownTransactionAccountId(Response.Status.BAD_REQUEST),
     TransactionNotFound(Response.Status.NOT_FOUND),
+    SourceSameAsDestination(Response.Status.BAD_REQUEST),
     InsufficientBalance(Response.Status.BAD_REQUEST);
 
     private final Response.Status status;
@@ -57,16 +58,23 @@ public enum ErrorCode {
 
     public static Supplier<WebApplicationException> insufficientBalance(TransactionMetadata transactionMetadata,
                                                                         Account source) {
-        return exception(ErrorCode.TransactionNotFound, () -> "Unsufficient balance: amount="
+        return exception(ErrorCode.InsufficientBalance, () -> "Unsufficient balance: amount="
                                                             + transactionMetadata.amount()
                                                             + ", balance=" + source.metadata().balance());
     }
 
     public static WebApplicationException insufficientBalanceException(TransactionMetadata transactionMetadata,
                                                                        Account source) {
-        throw exception(ErrorCode.TransactionNotFound, () -> "Unsufficient balance: amount="
-                      + transactionMetadata.amount()
-                      + ", balance=" + source.metadata().balance()).get();
+        throw insufficientBalance(transactionMetadata, source).get();
+    }
+
+    public static Supplier<WebApplicationException> sourceSameAsDestination(TransactionMetadata metadata) {
+        return exception(ErrorCode.SourceSameAsDestination, () -> "Source account must not be equal "
+                                                                + "to destination account: " + metadata.source());
+    }
+
+    public static WebApplicationException sourceSameAsDestinationException(TransactionMetadata metadata) {
+        throw sourceSameAsDestination(metadata).get();
     }
 
     private static Supplier<WebApplicationException> exception(ErrorCode errorCode, Supplier<String> message) {

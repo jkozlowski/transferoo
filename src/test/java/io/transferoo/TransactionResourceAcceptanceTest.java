@@ -62,7 +62,16 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
     @Test
     public void getTransaction_should_fail_for_unknown_id() {
         UniqueId<Transaction> transactionId = UniqueId.of(UUID.randomUUID());
-        expectError(ErrorCode.unknownTransactionId(transactionId), getTransactionResponse(transactionId));
+        expectError(ErrorCode.unknownTransactionId(transactionId),
+                    getTransactionResponse(transactionId));
+    }
+
+    @Test
+    public void createTransaction_should_fail_if_source_is_same_as_destination() {
+        TransactionMetadata metadata = transaction().destination(sourceAccount.id())
+                                                    .build();
+        expectError(ErrorCode.sourceSameAsDestination(metadata),
+                    tryCreateTransaction(metadata));
     }
 
     @Test

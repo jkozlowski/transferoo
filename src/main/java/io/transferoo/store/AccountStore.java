@@ -67,6 +67,11 @@ public class AccountStore {
     }
 
     public synchronized Transaction createTransaction(TransactionMetadata metadata) {
+
+        if (sourceAccountIsSameAsDestination(metadata)) {
+            throw ErrorCode.sourceSameAsDestinationException(metadata);
+        }
+
         Account source = getAccountByIdStrict(metadata.source(), TransactionAccountType.SOURCE);
         Account destination = getAccountByIdStrict(metadata.destination(), TransactionAccountType.DESTINATION);
 
@@ -89,6 +94,10 @@ public class AccountStore {
 
     private Account getAccountByIdStrict(UniqueId<Account> accountId, TransactionAccountType accountType) {
         return getAccountById(accountId).orElseThrow(ErrorCode.unknownAccountId(accountId, accountType));
+    }
+
+    private boolean sourceAccountIsSameAsDestination(TransactionMetadata metadata) {
+        return metadata.source().equals(metadata.destination());
     }
 
     private boolean hasEnoughBalance(TransactionMetadata metadata, Account source) {
