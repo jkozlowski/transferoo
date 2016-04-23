@@ -53,5 +53,5 @@ dependencies {
 distribution {
     serviceName 'transferoo-server'
     mainClass 'io.transferoo.TransferooServer'
-    args 'server', 'var/conf/transferoo.yml'
+    args 'server', 'var/transferoo.yml'
 }

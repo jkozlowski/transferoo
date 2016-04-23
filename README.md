@@ -21,6 +21,27 @@ Things not handled:
 
 So pretty much everything you would actually care about...
 
+### Building
+
+```
+$ ./gradlew distTar
+$ tar zxvf build/distributions/transferoo-server-<version>.tgz
+$ cd transferoo-server-<version>
+$ service/bin/init.sh start
+```
+
+Logs should be in ```var/log/transferoo-server-startup.log```.
+
+To stop:
+
+```
+service/bin/init.sh stop
+```
+
+### Config
+
+Example config is in: ```var/transferoo.yml```.
+
 ### Running from Intellij
 
 * class: *io.transferoo.TransferooServer*
