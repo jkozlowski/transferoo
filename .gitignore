@@ -3,4 +3,5 @@
 *.ipr
 *.iws
 generated_src
+generated_testSrc
 build

@@ -38,6 +38,10 @@ public abstract class AccountMetadata {
     @JsonProperty("balance")
     public abstract BigDecimal balance();
 
+    public Builder toBuilder() {
+        return new Builder().from(this);
+    }
+
     public static AccountMetadata.Builder builder() {
         return new AccountMetadata.Builder();
     }

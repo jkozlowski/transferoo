@@ -24,6 +24,8 @@
 
 package io.transferoo;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
 import io.transferoo.api.ErrorCode;
@@ -33,61 +35,90 @@ import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import java.math.BigDecimal;
 import java.util.UUID;
+import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
 
-    private final BigDecimal account1Balance = new BigDecimal("10.0");
-    private final BigDecimal account2Balance = new BigDecimal("100.0");
-    private final AccountMetadata account1Metadata = AccountMetadata.builder()
-                                                                    .balance(account1Balance)
-                                                                    .build();
-    private final AccountMetadata account2Metadata = AccountMetadata.builder()
-                                                                    .balance(account2Balance)
-                                                                    .build();
+    private final BigDecimal sourceAccountBalance = new BigDecimal("10.0");
+    private final BigDecimal destinationAccountBalance = new BigDecimal("100.0");
+    private final AccountMetadata sourceAccountMetadata = AccountMetadata.builder()
+                                                                         .balance(sourceAccountBalance)
+                                                                         .build();
+    private final AccountMetadata destinationAccountMetadata = AccountMetadata.builder()
+                                                                              .balance(destinationAccountBalance)
+                                                                              .build();
 
-    private Account account1;
-    private Account account2;
+    private Account sourceAccount;
+    private Account destinationAccount;
 
     @Before
     public void before() {
-        account1 = createAccount(account1Metadata);
-        account2 = createAccount(account2Metadata);
+        sourceAccount = createAccount(sourceAccountMetadata);
+        destinationAccount = createAccount(destinationAccountMetadata);
     }
 
     @Test
     public void getTransaction_should_fail_for_unknown_id() {
-        UniqueId<Transaction> of = UniqueId.of(UUID.randomUUID());
-        expectError(ErrorCode.unknownTransactionId(of), getTransactionResponse(of));
+        UniqueId<Transaction> transactionId = UniqueId.of(UUID.randomUUID());
+        expectError(ErrorCode.unknownTransactionId(transactionId), getTransactionResponse(transactionId));
     }
 
     @Test
     public void createTransaction_should_fail_for_unknown_source_transaction() {
         UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
         expectError(ErrorCode.unknownAccountId(accountId, TransactionAccountType.SOURCE),
-                    tryCreateTransaction(account1ToAccount2().source(accountId).build()));
+                    tryCreateTransaction(transaction().source(accountId).build()));
     }
 
     @Test
     public void createTransaction_should_fail_for_unknown_destination_transaction() {
         UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
         expectError(ErrorCode.unknownAccountId(accountId, TransactionAccountType.DESTINATION),
-                    tryCreateTransaction(account1ToAccount2().destination(accountId).build()));
+                    tryCreateTransaction(transaction().destination(accountId).build()));
     }
 
     @Test
     public void createTransaction_should_fail_if_source_has_insufficient_balance() {
-        TransactionMetadata transactionMetadata = account1ToAccount2().amount(account1Balance.add(BigDecimal.ONE))
-                                                                      .build();
-        expectError(ErrorCode.insufficientBalance(transactionMetadata, account1),
+        TransactionMetadata transactionMetadata = transaction().amount(sourceAccountBalance.add(BigDecimal.ONE))
+                                                               .build();
+        expectError(ErrorCode.insufficientBalance(transactionMetadata, sourceAccount),
                     tryCreateTransaction(transactionMetadata));
     }
 
-    private TransactionMetadata.Builder account1ToAccount2() {
+    @Test
+    public void createTransaction_should_succeed_if_source_has_enough_balance() {
+        checkTransaction(sourceAccountBalance.subtract(BigDecimal.ONE));
+    }
+
+    @Test
+    public void createTransaction_should_successfully_transfer_entire_balance() {
+        checkTransaction(sourceAccountBalance);
+    }
+
+    private void checkTransaction(BigDecimal amount) {
+        TransactionMetadata transactionMetadata = transaction().amount(amount)
+                                                               .build();
+
+        Transaction transaction = createTransaction(transactionMetadata);
+        assertThat(transaction).isEqualTo(getTransaction(transaction.id()));
+
+        assertThat(transaction.metadata()).isEqualTo(transactionMetadata);
+
+        checkBalance(sourceAccount, (originalBalance) -> originalBalance.subtract(amount));
+        checkBalance(destinationAccount, (originalBalance) -> originalBalance.add(amount));
+    }
+
+    private TransactionMetadata.Builder transaction() {
         return TransactionMetadata.builder()
-                                  .source(account1.id())
-                                  .destination(account2.id())
-                                  .amount(account1Balance);
+                                  .source(sourceAccount.id())
+                                  .destination(destinationAccount.id())
+                                  .amount(sourceAccountBalance);
+    }
+
+    private void checkBalance(Account account, Function<BigDecimal, BigDecimal> modifier) {
+        Account accountAfterTransfer = getAccount(account.id());
+        assertThat(accountAfterTransfer.metadata().balance()).isEqualTo(modifier.apply(account.metadata().balance()));
     }
 }

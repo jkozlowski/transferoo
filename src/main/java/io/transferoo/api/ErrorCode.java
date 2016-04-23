@@ -30,8 +30,6 @@ import javax.ws.rs.core.Response;
 
 public enum ErrorCode {
 
-    // Specifying the error codes by hand
-    // in order to not change the ordering by mistake.
     AccountNotFound(Response.Status.NOT_FOUND),
     UnknownTransactionAccountId(Response.Status.BAD_REQUEST),
     TransactionNotFound(Response.Status.NOT_FOUND),

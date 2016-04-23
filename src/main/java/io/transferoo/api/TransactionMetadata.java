@@ -49,17 +49,13 @@ public abstract class TransactionMetadata {
     protected void check() {
         Preconditions.checkState(amount().compareTo(BigDecimal.ZERO) > 0,
                                  "Amount must be greater than zero: amount=%s", amount());
+        Preconditions.checkState(!source().equals(destination()),
+                                 "Source must not be equal to destination: %s", source());
     }
 
     public static TransactionMetadata.Builder builder() {
         return new TransactionMetadata.Builder();
     }
 
-    public static class Builder extends ImmutableTransactionMetadata.Builder {
-
-        public TransactionMetadata.Builder source(String transactionId) {
-            return super.source(UniqueId.valueOf(transactionId));
-        }
-
-    }
+    public static class Builder extends ImmutableTransactionMetadata.Builder {}
 }

@@ -5,6 +5,13 @@ transferoo.io
 
 Just a silly RESTful, in-memory money transfer API running on Dropwizard.
 
+Features:
+* Account creation (accounts can have negative balance from the start).
+* Accounts cannot be overdrawn (transaction source must have at least
+  the amount in the transaction).
+* Transfer amounts must be non-zero.
+* Infinite precision (yay for BigDecimals!)
+
 Things not handled:
 * Paging.
 * Auth.

@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.math.BigDecimal;
 import org.immutables.value.Value;
 
 /**
@@ -43,6 +44,15 @@ public abstract class Account {
 
     @JsonUnwrapped
     public abstract AccountMetadata metadata();
+
+    public Account newBalance(BigDecimal newBalance) {
+        AccountMetadata newBalanceMetadata = new AccountMetadata.Builder().from(metadata())
+                                                                          .balance(newBalance)
+                                                                          .build();
+        return new Builder().from(this)
+                            .metadata(newBalanceMetadata)
+                            .build();
+    }
 
     public static Account.Builder builder() {
         return new Account.Builder();

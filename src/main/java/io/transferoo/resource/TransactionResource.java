@@ -72,8 +72,8 @@ public class TransactionResource {
             throws NoSuchMethodException {
         Transaction transaction = accounts.createTransaction(metadata);
         return Response.created(transactionUri(transaction))
-                .entity(transaction)
-                .build();
+                       .entity(transaction)
+                       .build();
     }
 
     private URI transactionUri(Transaction account) throws NoSuchMethodException {

@@ -46,6 +46,13 @@ public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
     }
 
     @Test
+    public void createAccount_should_allow_negative_balance() {
+        createAccount(accountMetadata.toBuilder()
+                                     .balance(new BigDecimal("-1.0"))
+                                     .build());
+    }
+
+    @Test
     public void getAccount_should_lookup_account_by_id() {
         Account createAccount = createAccount(accountMetadata);
         Account actualAccount = getAccount(createAccount.id());

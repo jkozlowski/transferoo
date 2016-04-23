@@ -75,19 +75,11 @@ public abstract class AcceptanceTestBase {
         return actualAccount;
     }
 
-    protected Response getAccountResponse(String accountId) {
-        return getAccountResponse(UniqueId.valueOf(accountId));
-    }
-
     protected Response getAccountResponse(UniqueId<Account> accountId) {
         return target().path(TransferooEndpoints.ACCOUNT_RESOURCE + "/{id}")
                        .resolveTemplate("id", accountId.id().toString())
                        .request(MediaType.APPLICATION_JSON_TYPE)
                        .get();
-    }
-
-    protected Account getAccount(String accountId) {
-        return getAccount(UniqueId.valueOf(accountId));
     }
 
     protected Account getAccount(UniqueId<Account> accountId) {
@@ -99,6 +91,10 @@ public abstract class AcceptanceTestBase {
                        .resolveTemplate("id", transactionId.id().toString())
                        .request(MediaType.APPLICATION_JSON_TYPE)
                        .get();
+    }
+
+    protected Transaction getTransaction(UniqueId<Transaction> transactionId) {
+        return getTransactionResponse(transactionId).readEntity(Transaction.class);
     }
 
     protected Transaction createTransaction(TransactionMetadata metadata) {
@@ -122,7 +118,7 @@ public abstract class AcceptanceTestBase {
 
     private <T> T checkCreated(Class<T> clazz, Response response) {
         T actual = response.readEntity(clazz);
-        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED_201);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         assertThat(c.target(response.getLocation())
                     .request(MediaType.APPLICATION_JSON_TYPE)
                     .get(clazz)).isEqualTo(actual);

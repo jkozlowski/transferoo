@@ -32,10 +32,13 @@ import io.transferoo.api.Transaction;
 import io.transferoo.api.TransactionAccountType;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -45,38 +48,71 @@ import javax.annotation.concurrent.ThreadSafe;
 public class AccountStore {
 
     private final Map<UniqueId<Account>, Account> accounts = new HashMap<>();
+    private final Map<UniqueId<Transaction>, Transaction> transactions = new HashMap<>();
 
     public Account createAccount(AccountMetadata metadata) {
-        UniqueId<Account> uniqueId = UniqueId.of(UUID.randomUUID());
-        Preconditions.checkState(!accounts.containsKey(uniqueId),
+        UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
+        Preconditions.checkState(!accounts.containsKey(accountId),
                                  "Oh noes, UUIDs just clashed! Lucky you! Try again later!");
         Account account = Account.builder()
-                                 .id(uniqueId)
+                                 .id(accountId)
                                  .metadata(metadata)
                                  .build();
-        accounts.put(uniqueId, account);
+        accounts.put(accountId, account);
         return account;
     }
 
-    public synchronized Optional<Account> getAccountById(UniqueId<Account> uniqueId) {
-        return Optional.ofNullable(accounts.get(uniqueId));
+    public synchronized Optional<Account> getAccountById(UniqueId<Account> accountId) {
+        return Optional.ofNullable(accounts.get(accountId));
     }
 
     public synchronized Transaction createTransaction(TransactionMetadata metadata) {
         Account source = getAccountByIdStrict(metadata.source(), TransactionAccountType.SOURCE);
-        getAccountByIdStrict(metadata.destination(), TransactionAccountType.DESTINATION);
+        Account destination = getAccountByIdStrict(metadata.destination(), TransactionAccountType.DESTINATION);
 
-        if (metadata.amount().compareTo(source.metadata().balance()) > 0) {
+        if (!hasEnoughBalance(metadata, source)) {
             throw ErrorCode.insufficientBalanceException(metadata, source);
         }
-        return null;
+
+        Transaction transaction = putTransaction(metadata);
+
+        BigDecimal amount = metadata.amount();
+        modifyBalance(source, (balance) -> balance.subtract(amount, MathContext.UNLIMITED));
+        modifyBalance(destination, (balance) -> balance.add(amount, MathContext.UNLIMITED));
+
+        return transaction;
     }
 
-    public synchronized Optional<Transaction> getTransactionById(UniqueId<Transaction> uniqueId) {
-        return Optional.empty();
+    public synchronized Optional<Transaction> getTransactionById(UniqueId<Transaction> transactionId) {
+        return Optional.ofNullable(transactions.get(transactionId));
     }
 
     private Account getAccountByIdStrict(UniqueId<Account> accountId, TransactionAccountType accountType) {
         return getAccountById(accountId).orElseThrow(ErrorCode.unknownAccountId(accountId, accountType));
+    }
+
+    private boolean hasEnoughBalance(TransactionMetadata metadata, Account source) {
+        return metadata.amount().compareTo(source.metadata().balance()) <= 0;
+    }
+
+    private Transaction putTransaction(TransactionMetadata metadata) {
+        UniqueId<Transaction> transactionId = UniqueId.of(UUID.randomUUID());
+        Preconditions.checkState(!transactions.containsKey(transactionId),
+                                 "Oh noes, UUIDs just clashed! Lucky you! Try again later!");
+        Transaction transaction = Transaction.builder()
+                                             .id(transactionId)
+                                             .metadata(metadata)
+                                             .build();
+        transactions.put(transactionId, transaction);
+
+        return transaction;
+    }
+
+    private void modifyBalance(Account account, Function<BigDecimal, BigDecimal> modifier) {
+        Preconditions.checkState(accounts.containsKey(account.id()),
+                                 "Should've checked that %s exists, you naughty developer!",
+                                 account.id());
+
+        accounts.put(account.id(), account.newBalance(modifier.apply(account.metadata().balance())));
     }
 }

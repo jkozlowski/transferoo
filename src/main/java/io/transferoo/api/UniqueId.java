@@ -33,6 +33,7 @@ import java.util.UUID;
 /**
  * Unique id to use for {@link Account}s and {@link Transaction}s.
  *
+ * @param <T> tag to specify whether this is {@link Account} or {@link Transaction} id
  */
 public final class UniqueId<T> {
 
@@ -68,8 +69,8 @@ public final class UniqueId<T> {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .toString();
+                          .add("id", id)
+                          .toString();
     }
 
     public static <T> UniqueId<T> of(UUID id) {
