@@ -24,7 +24,6 @@
 
 package io.transferoo.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -36,7 +35,6 @@ import org.immutables.value.Value;
 public abstract class Transaction implements HasUniqueId<Transaction> {
 
     @Override
-    @JsonProperty("id")
     public abstract UniqueId<Transaction> id();
 
     @JsonUnwrapped

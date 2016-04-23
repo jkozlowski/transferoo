@@ -24,6 +24,9 @@
 
 package io.transferoo.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public interface HasUniqueId<T> {
+    @JsonProperty("id")
     UniqueId<T> id();
 }
