@@ -37,8 +37,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 @JsonSerialize(as = ImmutableAccount.class)
 @JsonDeserialize(as = ImmutableAccount.class)
-public abstract class Account {
+public abstract class Account implements HasUniqueId<Account> {
 
+    @Override
     @JsonProperty("id")
     public abstract UniqueId<Account> id();
 

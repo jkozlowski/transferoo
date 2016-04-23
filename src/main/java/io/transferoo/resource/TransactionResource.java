@@ -30,7 +30,6 @@ import io.transferoo.api.Transaction;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
 import io.transferoo.store.AccountStore;
-import java.net.URI;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -68,15 +67,8 @@ public class TransactionResource {
 
     @POST
     @Timed
-    public Response createAccount(@NotNull @Valid TransactionMetadata metadata)
-            throws NoSuchMethodException {
+    public Response createAccount(@NotNull @Valid TransactionMetadata metadata) {
         Transaction transaction = accounts.createTransaction(metadata);
-        return Response.created(transactionUri(transaction))
-                       .entity(transaction)
-                       .build();
-    }
-
-    private URI transactionUri(Transaction account) throws NoSuchMethodException {
-        return TransferooEndpoints.transactionUri(uri, account);
+        return TransferooEndpoints.createdResponse(uri, transaction);
     }
 }

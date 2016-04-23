@@ -22,27 +22,8 @@
  * THE SOFTWARE.
  */
 
-package io.transferoo.resource;
+package io.transferoo.api;
 
-import io.transferoo.api.HasUniqueId;
-import java.net.URI;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
-public interface TransferooEndpoints {
-
-    String ACCOUNT_RESOURCE = "accounts";
-    String TRANSACTION_RESOURCE = "transactions";
-
-    static Response createdResponse(UriInfo uri, HasUniqueId<?> resource) {
-        return Response.created(resourceURI(uri, resource))
-                       .entity(resource)
-                       .build();
-    }
-
-    static URI resourceURI(UriInfo uri, HasUniqueId<?> resource) {
-        return uri.getAbsolutePathBuilder()
-                  .path("{id}")
-                  .build(resource.id().id().toString());
-    }
+public interface HasUniqueId<T> {
+    UniqueId<T> id();
 }
