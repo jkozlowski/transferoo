@@ -32,9 +32,11 @@ import io.transferoo.api.ErrorCode;
 import io.transferoo.api.Transaction;
 import io.transferoo.api.TransactionMetadata;
 import io.transferoo.api.UniqueId;
+import io.transferoo.resource.TransferooEndpoints;
 import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.function.Function;
+import javax.ws.rs.core.MediaType;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,6 +66,17 @@ public class TransactionResourceAcceptanceTest extends AcceptanceTestBase {
         expectError(ErrorCode.TransactionNotFound,
                     "Unknown transaction: " + transactionId.id(),
                     getTransactionResponse(transactionId));
+    }
+
+    @Test
+    public void getTransaction_should_fail_for_incorrectly_formed_uuid() {
+        String wrongId = "asd";
+        expectError(ErrorCode.InvalidId,
+                    "Invalid id value: " + wrongId,
+                    target().path(TransferooEndpoints.TRANSACTION_RESOURCE + "/{id}")
+                            .resolveTemplate("id", wrongId)
+                            .request(MediaType.APPLICATION_JSON_TYPE)
+                            .get());
     }
 
     @Test

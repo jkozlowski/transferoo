@@ -40,8 +40,12 @@ public class ParamConverters implements ParamConverterProvider {
             return new ParamConverter<T>() {
                 @Override
                 public T fromString(String value) {
-                    UUID uuid = UUID.fromString(value);
-                    return rawType.cast(UniqueId.of(uuid));
+                    try {
+                        UUID uuid = UUID.fromString(value);
+                        return rawType.cast(UniqueId.of(uuid));
+                    } catch (IllegalArgumentException e) {
+                        throw ErrorCode.invalidId(value);
+                    }
                 }
 
                 @Override

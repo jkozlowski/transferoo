@@ -30,8 +30,10 @@ import io.transferoo.api.Account;
 import io.transferoo.api.AccountMetadata;
 import io.transferoo.api.ErrorCode;
 import io.transferoo.api.UniqueId;
+import io.transferoo.resource.TransferooEndpoints;
 import java.math.BigDecimal;
 import java.util.UUID;
+import javax.ws.rs.core.MediaType;
 import org.junit.Test;
 
 public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
@@ -65,5 +67,16 @@ public class AccountResourceAcceptanceTest extends AcceptanceTestBase {
         expectError(ErrorCode.AccountNotFound,
                     "Account not found: " + accountId.id().toString(),
                     getAccountResponse(accountId));
+    }
+
+    @Test
+    public void getAccount_should_fail_for_incorrectly_formed_uuid() {
+        String wrongId = "asd";
+        expectError(ErrorCode.InvalidId,
+                    "Invalid id value: " + wrongId,
+                    target().path(TransferooEndpoints.ACCOUNT_RESOURCE + "/{id}")
+                            .resolveTemplate("id", wrongId)
+                            .request(MediaType.APPLICATION_JSON_TYPE)
+                            .get());
     }
 }

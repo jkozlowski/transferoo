@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 
 public enum ErrorCode {
 
+    InvalidId(Response.Status.BAD_REQUEST),
     AccountNotFound(Response.Status.NOT_FOUND),
     UnknownTransactionAccountId(Response.Status.BAD_REQUEST),
     TransactionNotFound(Response.Status.NOT_FOUND),
@@ -45,6 +46,11 @@ public enum ErrorCode {
 
     public Response.Status getStatus() {
         return status;
+    }
+
+    public static WebApplicationException invalidId(String id) {
+        throw createException(ErrorCode.InvalidId,
+                              "Invalid id value: " + id);
     }
 
     public static Supplier<WebApplicationException> accountNotFound(UniqueId<Account> accountId) {
