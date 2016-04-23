@@ -5,4 +5,4 @@ machine:
 test:
   override:
     - ./gradlew clean build --stacktrace
-    - cp -r "reports/tests" "$CIRCLE_TEST_REPORTS"
+    - cp -r "build/reports" "$CIRCLE_TEST_REPORTS"
