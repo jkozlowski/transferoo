@@ -24,23 +24,18 @@
 
 package io.transferoo.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.math.BigDecimal;
 import org.immutables.value.Value;
 
-/**
- * Account info in transferoo.
- */
 @Value.Immutable
 @JsonSerialize(as = ImmutableAccount.class)
 @JsonDeserialize(as = ImmutableAccount.class)
 public abstract class Account implements HasUniqueId<Account> {
 
     @Override
-    @JsonProperty("id")
     public abstract UniqueId<Account> id();
 
     @JsonUnwrapped
