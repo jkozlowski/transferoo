@@ -50,7 +50,7 @@ public class AccountStore {
     private final Map<UniqueId<Account>, Account> accounts = new HashMap<>();
     private final Map<UniqueId<Transaction>, Transaction> transactions = new HashMap<>();
 
-    public Account createAccount(AccountMetadata metadata) {
+    public synchronized Account createAccount(AccountMetadata metadata) {
         UniqueId<Account> accountId = UniqueId.of(UUID.randomUUID());
         Preconditions.checkState(!accounts.containsKey(accountId),
                                  "Oh noes, UUIDs just clashed! Lucky you! Try again later!");
