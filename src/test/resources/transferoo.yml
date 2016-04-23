@@ -3,10 +3,10 @@ server:
   adminContextPath: /admin
   applicationConnectors:
     - type: http
-      port: 8443
+      port: 8343
   adminConnectors:
     - type: http
-      port: 8444
+      port: 8344
 
 logging:
   level: INFO

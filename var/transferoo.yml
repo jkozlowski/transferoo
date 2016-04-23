@@ -3,14 +3,14 @@ server:
   adminContextPath: /admin
   applicationConnectors:
     - type: https
-      port: 8443
+      port: 8343
       keyStorePath: var/security/keystore.keystore
       keyStorePassword: example
       validateCerts: false
       validatePeers: false
   adminConnectors:
     - type: https
-      port: 8444
+      port: 8344
       keyStorePath: var/security/keystore.keystore
       keyStorePassword: example
       validateCerts: false
